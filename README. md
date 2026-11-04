@@ -1,0 +1,131 @@
+# Local Asset Fetcher (laf)
+
+**Lightweight Bash utility** that automates the downloading of public repositories and configuration files, then automatically organizes them into categorized folders based on their file extension.
+
+```bash
+laf https://github.com/user/dotfiles.git
+laf https://raw.githubusercontent.com/user/repo/main/.bashrc
+laf -f my-assets.txt
+```
+
+## Features
+
+- **Smart detection** – Automatically distinguishes between Git repositories and direct file downloads
+- **Auto-categorization** – Files are sorted into folders by extension:
+  - `scripts/` – shell, Python, JS, Go, Rust, etc.
+  - `configs/` – YAML, JSON, TOML, conf, env, systemd units
+  - `docs/` – Markdown, text, PDF, HTML
+  - `data/` – CSV, SQL
+  - `assets/` – images
+  - `archives/` – zip, tar, gz...
+  - `infra/` – Docker, Terraform, Nix
+  - `repos/` – full Git repositories
+  - `other/` – everything else
+- **Shallow clones** by default (configurable depth)
+- **Batch mode** – process many URLs from a file
+- **Dry-run**, force overwrite, quiet/verbose modes
+- **Zero dependencies** beyond `bash`, `curl`/`wget`, and `git` (for repos)
+- **Cross-platform** – works on Linux, macOS, WSL, and most Unix-like systems
+
+## Quick Install
+
+```bash
+# One-liner (recommended)
+curl -fsSL https://raw.githubusercontent.com/your-org/local-asset-fetcher/main/install.sh | bash
+
+# Or manually
+git clone https://github.com/your-org/local-asset-fetcher.git
+cd local-asset-fetcher
+sudo cp src/local-asset-fetcher.sh /usr/local/bin/laf
+# or
+mkdir -p ~/.local/bin
+cp src/local-asset-fetcher.sh ~/.local/bin/laf
+```
+
+Make sure `~/.local/bin` is in your `$PATH`.
+
+## Usage
+
+```bash
+# Initialize the default directory structure (~/.local-assets)
+laf --init
+
+# Download a config file
+laf https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/templates/zshrc.zsh-template
+
+# Clone a public repository (shallow by default)
+laf https://github.com/jesseduffield/lazygit.git
+
+# Multiple sources at once
+laf \
+  https://github.com/user/dotfiles.git \
+  https://example.com/nginx.conf \
+  https://raw.githubusercontent.com/user/repo/main/app.yaml
+
+# From a list file (one URL per line, # comments allowed)
+laf -f assets.txt
+
+# Custom base directory
+laf -d ~/my-tools https://github.com/user/scripts.git
+
+# Dry-run (see what would happen)
+laf -n https://github.com/user/repo.git
+
+# Force overwrite
+laf -F https://github.com/user/repo.git
+
+# List what you have
+laf --list
+
+# Clean empty category folders
+laf --clean
+```
+
+### Options
+
+| Option | Description |
+|--------|-------------|
+| `-d, --dir <path>` | Base directory (default: `~/.local-assets`) |
+| `-f, --file <path>` | Read URLs from a file |
+| `-c, --no-categorize` | Keep original filenames, no category folders |
+| `-n, --dry-run` | Preview actions without downloading |
+| `-F, --force` | Overwrite existing files/repos |
+| `-v, --verbose` | Extra debug output |
+| `-q, --quiet` | Suppress non-error messages |
+| `--depth <n>` | Git clone depth (default: 1, 0 = full history) |
+| `--init` | Create the directory structure |
+| `--list` | Show downloaded assets |
+| `--clean` | Remove empty category folders |
+| `-h, --help` | Show help |
+| `--version` | Show version |
+
+## Directory Layout
+
+After running, your assets live under `~/.local-assets` (or the path you chose):
+
+```
+~/.local-assets/
+├── scripts/
+├── configs/
+├── docs/
+├── data/
+├── assets/
+├── archives/
+├── infra/
+├── repos/
+└── other/
+```
+
+## Requirements
+
+- Bash 4+ (associative arrays)
+- `curl` or `wget`
+- `git` (only needed for repository cloning)
+
+## License
+
+MIT
+
+## Contributing
+
+Issues and pull requests are welcome!
